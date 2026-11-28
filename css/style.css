@@ -811,6 +811,46 @@ body > .grain {
 }
 .cursor-aura.on { opacity: 1; }
 
+/* ============================================================
+   Round custom pointer (same as CC-IMS / CC-EMS) — driven by main.js
+   Only active when JS adds .cc-cursor-on (fine pointers only)
+   ============================================================ */
+html.cc-cursor-on, html.cc-cursor-on * { cursor: none !important; }
+.cc-cursor-core, .cc-cursor-ring {
+    position: fixed; left: -100px; top: -100px; pointer-events: none;
+    transform: translate(-50%, -50%); z-index: 99999; border-radius: 50%;
+    will-change: left, top; transition: opacity .22s;
+}
+.cc-cursor-core {
+    width: 8px; height: 8px; background: #45e6d2;
+    box-shadow: 0 0 10px rgba(69, 230, 210, .45);
+    transition: width .22s cubic-bezier(.22, 1, .36, 1), height .22s cubic-bezier(.22, 1, .36, 1), opacity .22s;
+}
+.cc-cursor-ring {
+    width: 34px; height: 34px;
+    animation: ccRotate 8s linear infinite;
+    transition: width .3s cubic-bezier(.22, 1, .36, 1), height .3s cubic-bezier(.22, 1, .36, 1), opacity .22s;
+}
+.cc-cursor-ring svg {
+    display: block; width: 100%; height: 100%; overflow: visible;
+    filter: drop-shadow(0 0 5px rgba(255, 59, 92, .25)) drop-shadow(0 0 10px rgba(69, 230, 210, .2));
+}
+@keyframes ccRotate {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+/* Hover on links/buttons: ring grows, turns solid, stays round */
+body.cursor-button .cc-cursor-ring { width: 52px; height: 52px; animation: none; }
+body.cursor-button .cc-cursor-ring circle { stroke-dasharray: 0; }
+body.cursor-button .cc-cursor-ring svg {
+    filter: drop-shadow(0 0 8px rgba(255, 59, 92, .35)) drop-shadow(0 0 14px rgba(69, 230, 210, .35));
+}
+body.cursor-button .cc-cursor-core { width: 4px; height: 4px; }
+body.cc-cursor-down .cc-cursor-ring { width: 26px; height: 26px; }
+body.cc-cursor-hidden .cc-cursor-core, body.cc-cursor-hidden .cc-cursor-ring { opacity: 0; }
+@media (pointer: coarse) { .cc-cursor-core, .cc-cursor-ring { display: none; } }
+@media (prefers-reduced-motion: reduce) { .cc-cursor-ring { animation: none; } }
+
 /* Scroll reveal is handled by IntersectionObserver in js/main.js (.fade-up -> .in) */
 @media (prefers-reduced-motion: reduce) {
     .kw > span { transform: none; animation: none; }
