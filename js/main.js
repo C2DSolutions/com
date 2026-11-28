@@ -147,6 +147,45 @@
         });
     }
 
+    /* Round custom pointer — same design as CC-IMS / CC-EMS:
+       instant centre dot + spring-follow dashed gradient ring */
+    if (finePointer) {
+        var ccCore = document.createElement('div');
+        ccCore.className = 'cc-cursor-core';
+        var ccRing = document.createElement('div');
+        ccRing.className = 'cc-cursor-ring';
+        ccRing.innerHTML =
+            '<svg viewBox="0 0 40 40" aria-hidden="true">' +
+            '<defs><linearGradient id="ccCursorGradient" x1="0%" y1="0%" x2="100%" y2="100%">' +
+            '<stop offset="0%" stop-color="#FF3B5C"/><stop offset="100%" stop-color="#45E6D2"/>' +
+            '</linearGradient></defs>' +
+            '<circle cx="20" cy="20" r="18" fill="none" stroke="url(#ccCursorGradient)" ' +
+            'stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' +
+            '</svg>';
+        document.body.appendChild(ccRing);
+        document.body.appendChild(ccCore);
+        document.documentElement.classList.add('cc-cursor-on');
+
+        var mx = -100, my = -100, rx = -100, ry = -100, ccStarted = false;
+        var ccHoverSel = 'a, button, input, textarea, select, label, summary, [role="button"], [data-cursor], .ctab';
+        var ccLoop = function () {
+            rx += (mx - rx) * 0.15; ry += (my - ry) * 0.15;
+            ccRing.style.left = rx + 'px'; ccRing.style.top = ry + 'px';
+            requestAnimationFrame(ccLoop);
+        };
+        window.addEventListener('mousemove', function (e) {
+            mx = e.clientX; my = e.clientY;
+            ccCore.style.left = mx + 'px'; ccCore.style.top = my + 'px';
+            if (!ccStarted) { ccStarted = true; rx = mx; ry = my; requestAnimationFrame(ccLoop); }
+            document.body.classList.remove('cc-cursor-hidden');
+            var t = e.target;
+            document.body.classList.toggle('cursor-button', !!(t && t.closest && t.closest(ccHoverSel)));
+        }, { passive: true });
+        document.addEventListener('mouseleave', function () { document.body.classList.add('cc-cursor-hidden'); });
+        window.addEventListener('mousedown', function () { document.body.classList.add('cc-cursor-down'); });
+        window.addEventListener('mouseup', function () { document.body.classList.remove('cc-cursor-down'); });
+    }
+
     if (finePointer && !reduce) {
         /* Cursor aura */
         var aura = document.createElement('div');
